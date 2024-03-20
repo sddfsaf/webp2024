@@ -25,7 +25,7 @@ function add_new_chars(){
   var randomLength = Math.floor(Math.random() * 3) + 1;
   var randomString = '';
   for (var i = 0; i < randomLength; i++) {
-    var charCode = Math.floor(Math.random() * 26) + 97; // ASCII code for 'a' to 'z'
+    var charCode = Math.floor(Math.random() * 26) + 97;
     randomString += String.fromCharCode(charCode);
   }
   container.textContent = randomString;
