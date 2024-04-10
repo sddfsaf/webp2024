@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <button onclick="getimgp()">Get IMG</button>
+  <div id='gallery' class="gallery"></div>
+
+  <script>
+    var recentPhotosUrl = 'https://api.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=ca370d51a054836007519a00ff4ce59e&per_page=10&format=json&nojsoncallback=1';
+
+    
+    function getPhotoSizes(photoId, size) {
+      return `https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=ca370d51a054836007519a00ff4ce59e&photo_id=${photoId}&format=json&nojsoncallback=1`;
+    }
+
+    function getimg() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', recentPhotosUrl, true);
+      xhr.send();
+      xhr.onload = function() {
+        var data = JSON.parse(this.responseText);
+        var photos = data.photos.photo;
+        photos.forEach(function(photo) {
+          var photoId = photo.id;
+          var sizesUrl = getPhotoSizes(photoId, 'Small');
+          var xhr2 = new XMLHttpRequest();
+          xhr2.open('GET', sizesUrl, true);
+          xhr2.send();
+          xhr2.onload = function() {
+            var sizesData = JSON.parse(this.responseText);
+            var imgSrc = sizesData.sizes.size[sizesData.sizes.size.length - 1].source;
+            add_new_img(imgSrc);
+          };
+        });
+      };
+    }
+
+    function add_new_img(src) {
+      var gallery = document.getElementById("gallery");
+      var img = document.createElement("img");
+      img.setAttribute("src", src);
+      gallery.appendChild(img);
+    }
+
+    
+    function getimgp() {
+      getimg();
+    }
+  </script>
+</body>
+</html>
+
