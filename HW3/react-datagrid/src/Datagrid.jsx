@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Box } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 
 const Datagrid = () => {
   const [dataset, setDataset] = useState([]);
@@ -23,45 +25,29 @@ const Datagrid = () => {
   }, []);
 
   useEffect(() => {
-    renderData();
     updatePagination();
   }, [currentPage, filteredData]);
 
-  const renderData = () => {
-    const myTable = document.getElementById("tableBody");
-    myTable.innerHTML = '';
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentData = filteredData.slice(startIndex, endIndex);
-    currentData.forEach(data => {
-      const row = myTable.insertRow(-1);
-      row.insertCell(0).innerHTML = data['title'];
-      row.insertCell(1).innerHTML = data['showInfo'][0]['location'];
-      row.insertCell(2).innerHTML = data['showInfo'][0]['price'];
-    });
-  };
-
   const updatePagination = () => {
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    document.getElementById('currentPage').textContent = currentPage;
-    document.getElementById('totalPages').textContent = totalPages;
+    console.log(currentPage);
+    console.log(filteredData);
   };
 
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  const columns = [
+    { field: 'title', headerName: '名稱', width: 200 },
+    { field: 'location', headerName: '地點', width: 150 },
+    { field: 'price', headerName: '票價', width: 120 }
+  ];
 
-  const nextPage = () => {
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+  const rows = filteredData.map((data, index) => ({
+    id: index,
+    ...data
+  }));
 
-  const search = () => {
-    const newFilteredData = dataset.filter(data => data['title'].toLowerCase().includes(searchInput.toLowerCase()));
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+    const newFilteredData = dataset.filter(data => data.title.toLowerCase().includes(e.target.value.toLowerCase()));
     setFilteredData(newFilteredData);
     setCurrentPage(1);
   };
@@ -69,23 +55,19 @@ const Datagrid = () => {
   return (
     <div>
       <h1>景點觀光覽資訊</h1>
-      <input type="text" id="searchInput" placeholder="搜尋名稱" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
+      <input type="text" id="searchInput" placeholder="搜尋名稱" value={searchInput} onChange={handleSearchInputChange} />
       <br /><br />
-      <table id="csie" className="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th>名稱</th>
-            <th>地點</th>
-            <th>票價</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-      <div>
-        <button onClick={prevPage}>上一頁</button>
-        <span id="currentPage"></span>頁/<span id="totalPages"></span>頁
-        <button onClick={nextPage}>下一頁</button>
-      </div>
+      <Box sx={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          pageSize={itemsPerPage}
+          pagination
+          page={currentPage}
+          onPageChange={(newPage) => setCurrentPage(newPage)}
+          autoHeight
+        />
+      </Box>
     </div>
   );
 };
